@@ -1,3 +1,4 @@
+# 0 is for Owen
 import numpy as np
 
 COORD = 63

@@ -64,8 +64,7 @@ program data_format
                                                         points(c2+1) = coord(k+1)
                                                         points(c2+2) = coord(k+2)
                                                 end if
-                                                if (length < &
-                                                reff) then
+                                                if (length < reff) then
                                                         cave = .FALSE.
                                                         exit
                                                 end if

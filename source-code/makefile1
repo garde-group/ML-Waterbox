@@ -1,0 +1,19 @@
+SHELL= /bin/sh
+F90= gfortran
+LD= gfortran
+OPTFLAGS= -funroll-loops -ffast-math -O3
+XTCLIB= -L . -lxdrf_gfortran
+FC= $(F90)
+DEFINES= -DXTC
+RM= rm
+FFLAGS= $(OPTFLAGS) $(DEFINES)
+
+distobj= cavity.o
+
+pre:
+	$(LD) $(FFLAGS) -c -g -o $(distobj) cavity.f90
+clean:
+	$(RM) *.o
+
+#gfortran -funroll-loops -ffast-math -DXTC   -c -o newtemplate.o newtemplate.f90
+#gfortran -funroll-loops -ffast-math -DXTC  newtemplate.o -L . -lxdrf_gfortran  -o newtemplate

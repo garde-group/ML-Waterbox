@@ -37,7 +37,8 @@ with open("coord.dat") as f:
 		final = []
 		l = l[1:]
 		for i in range(len(l)):
-			final.append(float(l[i]))		
+			final.append(float(l[i]))	
+		#final[COORD] should be changed, only works for 20 points not any other, I will update the changes later
 		if final[COORD] == 1 and counter < SIZE:
 			labels[counter]= final[COORD]
 			data[counter] = final[:COORD]

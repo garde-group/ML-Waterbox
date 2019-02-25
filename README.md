@@ -1,2 +1,2 @@
 # ML-Waterbox
-Various Code's for the application of Deep Learning to Molecular Simulations
+Various codes for the application of deep learning to molecular simulations

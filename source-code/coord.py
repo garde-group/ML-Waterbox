@@ -3,9 +3,11 @@
 This program has a reliably >99% accuracy on test and validation, in it's current form it does overfit, but that can be easily fixed
 by reducing the number of epochs.
 '''
+# 0 is for Owen
 import keras 
 from keras import models
 from keras import layers 
+from keras.models import load_model
 import numpy as np 
 import matplotlib.pyplot as plt
 
@@ -37,15 +39,14 @@ with open("coord.dat") as f:
 		final = []
 		l = l[1:]
 		for i in range(len(l)):
-			final.append(float(l[i]))	
-		#final[COORD] should be changed, only works for 20 points not any other, I will update the changes later
-		if final[COORD] == 1 and counter < SIZE:
-			labels[counter]= final[COORD]
-			data[counter] = final[:COORD]
+			final.append(float(l[i]))		
+		if final[63] == 1 and counter < SIZE:
+			labels[counter]= final[63]
+			data[counter] = final[:63]
 			counter += 1
-		elif final[COORD] == 0 and counter < SIZE and zero < (SIZE/2):
-			labels[counter] = final[COORD]
-			data[counter] = final[:COORD]
+		elif final[63] == 0 and counter < SIZE and zero < (SIZE/2):
+			labels[counter] = final[63]
+			data[counter] = final[:63]
 			counter += 1
 			zero += 1
 		
@@ -67,6 +68,7 @@ for i in range(len(data)):
 
 #print(data[:3])
 #print(labels[:3])
+
 for j in range(len(data)):
 	for k in range(len(data[j])):
 		data[j][k] *= 1000
@@ -87,15 +89,18 @@ for i in partial_label:
 		num_0 += 1
 	elif i == 1:
 		num_1 += 1
+
 print("num 1:", num_1, "num 0:", num_0)
 model = models.Sequential()
-model.add(layers.Dense(64, activation='relu', input_shape=(4050,)))
-model.add(layers.Dense(32, activation='relu'))
+model.add(layers.Dense(16, activation='relu', input_shape=(4050,)))
+model.add(layers.Dense(8, activation='relu'))
 model.add(layers.Dense(1, activation='sigmoid'))
 
 model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
 
 history = model.fit(partial_train, partial_label, epochs=20, batch_size=512, validation_data=(val_data, val_label))
+
+model.save('bench.h5')
 
 results = model.evaluate(test_data, test_label)
 print(results[1])
@@ -129,6 +134,3 @@ b.show()
 
 
 plt.show()
-
-
-

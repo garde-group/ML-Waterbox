@@ -1,6 +1,6 @@
 ! 0 is for Owen
 
-
+! If you're looking at this Camille, I got the fixed a bug, and now the minimum value is -0.16 (still below 0)
 program data_format
     implicit none
     integer :: nuse, nskip, narg, i, nframe, uz, ret, &
@@ -56,8 +56,8 @@ program data_format
                             if (dz > 0.5 * side) dz = dz - side
                             length = sqrt(dx**2 + dy**2 + dz**2)
                             if(length < maxval(dist)) then
-                                dist(maxloc(dist)) = length
                                 c2 = (maxloc(dist, DIM=1) - 1) * 3 + 1
+                                dist(maxloc(dist)) = length
                                 points(c2) = coord(m)
                                 points(c2+1) = coord(m+1)
                                 points(c2+2) = coord(m+2)
@@ -68,7 +68,7 @@ program data_format
                         end do
                         sigma = 0
                         do i = 1, 9, 3
-                            ! I know I am doing needless calculations, I merely do so for understandability purposes
+                            ! I know I am doing needless calculations, I merely do so for readability purposes
                             do j = i + 3, 12, 3
                                 dx = abs(results(c1, 1) - points(i))
                                 dy = abs(results(c1, 2) - points(i + 1))
@@ -113,6 +113,9 @@ program data_format
     end if
 
     print *, maxval(orders), minval(orders)
+    do i = 1, size(orders) 
+        if (orders(i) < 0) print *, orders(i)
+    end do
     do i = 1, total
             do j = 1, 16
                 write(10,"(F10.3)",advance='no') results(i, j)

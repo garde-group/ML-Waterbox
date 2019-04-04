@@ -1,6 +1,9 @@
 ! 0 is for Owen
 
 ! Minimum value is -0.16 (still below 0)
+! 0 is for Owen
+
+
 program data_format
     implicit none
     integer :: nuse, nskip, narg, i, nframe, uz, ret, &
@@ -100,12 +103,17 @@ program data_format
                         end do
                         !print *, 'sigma', sigma
                         order = 1 - 0.375 * sigma
+                        !if (order < 0) then 
+                        !    do m = 1, 15
+                        !        print *, results(c1, m)
+                        !    end do 
+                        !end if
                         !print *, 'order', order
                         orders(c1) = order
                         results(c1, 16) = order
                     end do
-            print *, nframe
-            nframe = nframe + 1
+                    print *, nframe
+                    nframe = nframe + 1
             end do
     else
             write(*,*) 'Error in the xdrfopen'
@@ -128,3 +136,4 @@ program data_format
     write(*,*) ' '
     
 end program data_format   
+ 

@@ -1,6 +1,6 @@
 ! 0 is for Owen
 
-! If you're looking at this Camille, I got the fixed a bug, and now the minimum value is -0.16 (still below 0)
+! Minimum value is -0.16 (still below 0)
 program data_format
     implicit none
     integer :: nuse, nskip, narg, i, nframe, uz, ret, &

@@ -1,5 +1,5 @@
 # 0 is for Owen
-#This one <0.1 MAE
+# This has a variety of different encodings imbedded in this code, hence why there are so many commented out sections
 import keras 
 from keras import models
 from keras import layers 
@@ -60,6 +60,7 @@ with open("test.dat") as f:
 print(data[:3])
 print(regression[:3])
 data1 = np.zeros(shape=(SIZE,6))
+# This finds the nearest of the given coordinates to limit and fix the size
 for i in range(len(data)):
 	x = data[i][0]
 	y = data[i][1]
@@ -86,6 +87,7 @@ for i in range(len(data)):
 		j += 1
 
 '''
+This shifts the points to the center
 for i in range(len(data)):
 	x = data[i][0]
 	y = data[i][1]
@@ -123,6 +125,7 @@ test_label = regression[int(3*SIZE//4):]
 #print(labels[:100])
 
 model = models.Sequential()
+# This input shape needs to be changed to match whatever type of encoding you are doing, data1 has 6 indices, but the categorical has 4050
 model.add(layers.Dense(6, activation='relu', input_shape=(6,)))
 model.add(layers.Dense(3, activation='relu'))
 model.add(layers.Dense(1))
@@ -136,13 +139,14 @@ history = model.fit(partial_train, partial_label, epochs=1000, batch_size=128, v
 results = model.evaluate(test_data, test_label)
 print(results[1])
 pred = model.predict(test_data)
+# Seeing where the model is going wrong
 #for i in range(len(pred)):
 #	if pred[i] < 0.5 and test_label[i] == 1:
 #		print("False Negative:", regression[i])
 
 
 average_mae_history = history.history['val_mean_absolute_error']
-
+# Standard plotting idea
 a = plt.figure(1)
 plt.plot(range(1, len(average_mae_history) + 1), average_mae_history)
 plt.xlabel('Epochs')
@@ -170,6 +174,5 @@ b.show()
 
 
 plt.show()
-
 
 

@@ -1,4 +1,7 @@
 # 0 is for Owen
+# This program trains a network on the box fortran code output
+# Check the encodings folder for more of these sort of codes
+# This one doesn't work super well, and functions fundamentally similar to the coord.py
 import keras 
 from keras import models
 from keras import layers 
@@ -22,12 +25,14 @@ def every_day_im_shuffling(a, b):
 COORD = 84
 SIZE = 604210
 BINARY = 84
+# These are for the binary classification and for the regression lables
 R = 82
 
 data = np.zeros(shape=(SIZE,COORD))
 labels = np.zeros(shape=SIZE, dtype=np.int64)
 counter = 0
 zero = 0
+# Reading in the file, the size restrictions are only for binary classification and can be removed for regression
 with open("btest2.dat") as f:
 	for line in f:	
 		if counter >= SIZE:
@@ -56,6 +61,7 @@ for j in range(len(data)):
 	for k in range(len(data[j])):
 		data[j][k] *= 1000
 
+# Shuffle, encode, then split
 every_day_im_shuffling(data, labels) 
 data = vectorize_sequences(data)
 partial_train = data[:int(SIZE/2)]
@@ -74,6 +80,7 @@ for i in partial_label:
 		num_1 += 1
 
 print("num 1:", num_1, "num 0:", num_0)
+# Train then graph the results
 model = models.Sequential()
 model.add(layers.Dense(64, activation='relu', input_shape=(4000,)))
 model.add(layers.Dense(32, activation='relu'))
@@ -117,6 +124,5 @@ b.show()
 
 
 plt.show()
-
 
 

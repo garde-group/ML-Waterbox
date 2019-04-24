@@ -1,7 +1,12 @@
 # 0 is for Owen
+'''
+This is a simple program the reads how many ones and zeros there are, which is meant to be used after running the fortran code but before
+the training. This really should and could be integrated into the fortran code, but I just never got around to doing that
+'''
 import numpy as np
 
 COORD = 63
+# Total size of all the outputs
 SIZE = 640000
 
 
@@ -31,7 +36,8 @@ with open("coord.dat") as f:
 
 num_1 = 0
 num_0 = 0
-#print(labels[:100])
+#print(labels[:100])\
+# Count the total number ones and zeros to be able to get the accurate size for the coord.py
 for i in labels:
 	if i == 0:
 		num_0 += 1

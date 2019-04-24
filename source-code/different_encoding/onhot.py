@@ -1,5 +1,5 @@
 # 0 is for Owen
-# This one gets 99% val
+# There are a variety of different combinations of the ways in which input can be represented, this is why part of this are commented out
 
 import keras 
 from keras import models
@@ -24,6 +24,7 @@ def every_day_im_shuffling(a, b):
 	np.random.shuffle(b)
 
 COORD = 63
+# Files I have for my testing
 #SIZE = 48206 #for coord.dat
 #SIZE = 1887006 #for testcoord.dat
 SIZE = 42812 #for nvtcoord.dat
@@ -60,6 +61,7 @@ with open("nvtcoord.dat") as f:
 print(data[:3])
 print(labels[:3])
 '''
+This changes the data to just have the nearest point. 
 for i in range(len(data)):
 	data[i][0] = x = data[i][0]
 	data[i][1] = y = data[i][1]
@@ -84,6 +86,7 @@ for i in range(len(data)):
 		data[i][j] = 0
 		j += 1
 '''
+# With the commenting the way that it is, this is a categorical encoding
 print(data[:3])
 print(labels[:3])
 for j in range(len(data)):
@@ -155,6 +158,5 @@ b.show()
 
 
 plt.show()
-
 
 

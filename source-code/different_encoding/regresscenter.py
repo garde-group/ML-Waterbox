@@ -1,4 +1,5 @@
 # 0 is for Owen
+# This regression training is based off of centered coordinates (i.e. the starting coordinate is always the origin 0 0 0)
 import keras 
 from keras import models
 from keras import layers 
@@ -14,6 +15,7 @@ def every_day_im_shuffling(a, b):
 	np.random.set_state(rng_state)
 	np.random.shuffle(b)
 
+# Same initial variables as always, used for reading in input
 COORD = 84
 SIZE = 500000
 BINARY = 84
@@ -35,6 +37,7 @@ with open("8box.dat") as f:
 
 print(data[:3])
 print(regression[:3])
+# Center the data
 for i in range(len(data)):
 	x = data[i][0]
 	y = data[i][1]
@@ -56,6 +59,7 @@ for i in range(len(data)):
 
 print(data[:3])
 print(regression[:3])
+# Shuffle then split the data
 every_day_im_shuffling(data, regression) 
 
 partial_train = data[:int(SIZE/2)]
@@ -65,7 +69,7 @@ val_label = regression[int(SIZE/2):int(3*SIZE//4)]
 test_data = data[int(3*SIZE//4):]
 test_label = regression[int(3*SIZE//4):]
 
-
+# Hyperparamters can and perhaps should be changed
 model = models.Sequential()
 model.add(layers.Dense(84, activation='relu', input_shape=(84,)))
 model.add(layers.Dense(32, activation='relu'))
@@ -83,7 +87,7 @@ print(results[1])
 pred = model.predict(test_data)
 
 average_mae_history = history.history['val_mean_absolute_error']
-
+# Usual plotting stuff
 a = plt.figure(1)
 plt.plot(range(1, len(average_mae_history) + 1), average_mae_history)
 plt.xlabel('Epochs')
@@ -111,6 +115,5 @@ b.show()
 
 
 plt.show()
-
 
 

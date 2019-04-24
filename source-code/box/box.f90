@@ -1,5 +1,6 @@
 ! 0 is for Owen
-! Train on near coordinates, give it box
+! This file calculates and outputs the boxes of a certain simulation
+! Splits it into to boxes and outputs the cavity size at the center of the box
 
 program data_format
     implicit none
@@ -14,24 +15,24 @@ program data_format
     logical :: cave
     real :: dist(20), points(83), center(3)
 
-    side = 4
-    nuse = 100
-    pnum = 2180
+    side = 4 ! Side length of the box
+    nuse = 100 ! Number of frames to use
+    pnum = 2180 ! Nunber of particles
     na = 3
     nskip = 0
-    xtcfile = 'traj.xtc' 
-    outfile = 'btest1.dat'
+    xtcfile = 'traj.xtc' ! Input file
+    outfile = 'btest1.dat' ! Output file
     print *, "Beginning formatting"
-    reff = 0.25
+    reff = 0.25 ! Radius
 
-
+	! Number of boxes to split the full box to be split into
     BOXNUM = 512
     coordnum = 3 * na * pnum
     allocate(coord(coordnum))
     coord = 0
     nframe = 0
-    NUM = 84
-    allocate(boxes(nuse, BOXNUM, NUM+3))
+    NUM = 84 ! Number of coordinates to keep track of
+    allocate(boxes(nuse, BOXNUM, NUM+3)) ! The results 
     boxes = 0
     open(unit = 10, file = outfile)
     call xdrfopen(uz, xtcfile, 'r', ret)
@@ -40,7 +41,10 @@ program data_format
             do while (ret == 1 .and. nframe < (nskip + nuse))
                     call readxtc(uz, natoms, istep, time, gbox, &
                     coord, prec, ret)
-                    do k = 1, size(coord), 9
+					do k = 1, size(coord), 9
+						! Go through every one of the coordinates and place it into a box
+						! I don't think that this code is general enough to work for any box, I think that the
+						! 64 should be changed
                         x = coord(k)
                         y = coord(k+1)
                         z = coord(k+2)
@@ -53,7 +57,8 @@ program data_format
                         total = total + floor(z/0.5) + 1
                         if (boxes(nframe+1, total, NUM) == 0) boxes(nframe+1, total, NUM) = 1
                         i = boxes(nframe+1, total, NUM)
-                        !print *, nframe+1, total, i
+						!print *, nframe+1, total, i
+						! Error checking
                         if ((i > NUM-5) .or. (total < 1)) then 
                                 print *, "ERROR HERE", nframe+1, total, i, x, y, z
                                 continue
@@ -77,8 +82,9 @@ program data_format
     do i = 1, nuse
         do j = 1, BOXNUM
                 ! I realize after writing this, that it would probably be easier to have
-                ! just used some modular math than this. Oops.
-                ! Ohhhh you check this box and all neighboring boxes for coordinates
+				! just used some modular math than this. 
+				! This now calculates all the information about the box. For each box, it calculates and records
+				! whether a cavity of a certain size exists and the size of the cavity at that point
                 mid = floor(real(j-1)/64) + 1
                 mid = mid * 0.5
                 mid = mid - 0.25
@@ -131,10 +137,10 @@ program data_format
                 !do k = 1, NUM
         end do
     end do
-               
+     
     print *, "Number of cavities:", c2, real(c2)/c1, c1, BOXNUM*nuse
 
-
+	! Writes the output to the file
     do i = 1, nuse
             do j = 1, BOXNUM
                 do k = 1, NUM+2
@@ -149,5 +155,4 @@ program data_format
     write(*,*) ' '
     
 end program data_format  
-
 

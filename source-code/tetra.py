@@ -1,4 +1,5 @@
 # 0 is for Owen
+# Preliminary! Uncommented! Uncertain if works!
 import keras 
 from keras import models
 from keras import layers 

@@ -1,2 +1,2 @@
 # ML-Waterbox
-See the README.pdf for full information on this repository.
+See the ML.pdf for full information on this repository.

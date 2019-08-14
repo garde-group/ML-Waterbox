@@ -4,10 +4,12 @@ anywhere, I am trying to implement a 3D version that makes (somewhat) more conce
 into "pixels" and since normal coordinates can be placed into that, make each coordinate into a whole number and it can. A 3d image where each slot in the array
 corresponds to a certain point in the smallest precision the coordinates are generated at.
 
+Update: Fixed the code so it actually runs, but I got an OOM (out of memory) error and this is my memory stats lol (at normal usage, not running the code)
+svmem(total=34195042304, available=23692992512, percent=30.7, used=10502049792, free=23692992512)
 
 Author: Owen Lockwood
-Version 1.0
-Last Modified: 7/28/19
+Version 1.1
+Last Modified: 8/14/19
 '''
 
 import keras
@@ -24,14 +26,13 @@ def every_day_im_shuffling(a, b):
 	np.random.set_state(rng_state)
 	np.random.shuffle(b)
 
-SIZE = 100000 # THIS IS TOO BIG TO LOAD INTO RAM MEMORY, I HAVE 20 GB/32 GB USABLE AT TIME OF RUNNING ON MY LAPTOP AND THAT IS NOT ENOUGH
-# NEED TO MAKE A GENERATOR
+SIZE = 200 # THE MEMORY, ITS OVER 9000
 BINARY = 83
 RE = 84
 NUMCOORD = 28
 # The depth needs some characteristic? Is 1 for point and 0 for not a good way?
 # data = np.zeros(shape=(SIZE, NUMCOORD, NUMCOORD, NUMCOORD, 1))
-data = np.zeros(shape=(SIZE, 4000, 4000, 4000))
+data = np.zeros(shape=(SIZE, 400, 400, 400, 1), dtype=np.int8)
 # Categorical or normal number for label?
 labels = np.zeros(shape=SIZE, dtype=np.float)
 counter = 0
@@ -40,12 +41,14 @@ with open("coord.dat") as f:
         l = line.split('   ')
         final = []
         l = l[1:]
-        i = 0
-        if (counter <= SIZE):
+        i = 3
+        if (counter >= SIZE):
             break
         while (i < BINARY):
             #print(i)
-            data[counter][int(l[i]*1000)][int(l[i+1]*1000)][int(l[i+2]*1000)] = 1
+            #print(l[i], float(l[i]))
+            data[counter][int(float(l[i])*1000)-(int(float(l[i])*1000)-200)][int(float(l[i+1])*1000)-(int(float(l[i+1])*1000)-200)] \
+                [int(float(l[i+2])*1000)-(int(float(l[i+2])*1000)-200)][0] = 1
             i += 3
         labels[counter] = l[RE]
         counter += 1
@@ -61,13 +64,13 @@ test_label = labels[int(3*SIZE//4):]
 # Max pooling vs average pooling?
 # What to make kernal size???
 model = models.Sequential()
-model.add(layers.Conv3D(100, (100,100,100), activation='relu', input_shape=(4000, 4000, 4000, 1)))
-model.add(layers.Conv3D(100, (100,100,100), activation='relu'))
-model.add(layers.AveragePooling1D((200,200,200)))
-model.add(layers.Conv3D(160, (100,100,100), activation='relu'))
-model.add(layers.Conv3D(160, (100,100,100), activation='relu'))
+model.add(layers.Conv3D(100, (10,10,10), activation='relu', input_shape=(400, 400, 400, 1)))
+model.add(layers.Conv3D(100, (10,10,10), activation='relu'))
+model.add(layers.AveragePooling3D((2,2,2)))
+model.add(layers.Conv3D(160, (10,10,10), activation='relu'))
+model.add(layers.Conv3D(160, (10,10,10), activation='relu'))
 model.add(layers.GlobalAveragePooling3D())
-model.add(layers.Flatten())
+#model.add(layers.Flatten())
 model.add(layers.Dense(1))
 
 
@@ -83,7 +86,7 @@ callbacklist = [
 ]
 
 model.compile(optimizer='rmsprop', loss='mse', metrics=['mae'])
-history = model.fit(partial_train, partial_label, epochs=30, batch_size=128, validation_data=(val_data, val_label), callbacks=callbacklist)
+history = model.fit(partial_train, partial_label, epochs=30, batch_size=128, validation_data=(val_data, val_label))
 
 results = model.evaluate(test_data, test_label)
 print(results[1])

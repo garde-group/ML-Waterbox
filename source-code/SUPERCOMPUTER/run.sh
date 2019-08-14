@@ -19,3 +19,5 @@ srun --gres=gpu:4 -n 4 ./bindProcessToGpu.sh python $path_binary/3dconv_dcs.py
 
 set +x
 done
+
+# USE dos2unix command to get rid of /r errors

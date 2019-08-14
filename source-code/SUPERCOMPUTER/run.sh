@@ -12,7 +12,7 @@ module load xl_r mpich cuda
 for batch in 256 #128 256 32 64 #128 256
 do
 
-rm -rf batch-var-run.py
+rm -rf 3dconv_dcs.py
 # sed "s/xxx/$batch/g" batch-var.py > batch-var-run.py
 
 srun --gres=gpu:4 -n 4 ./bindProcessToGpu.sh python $path_binary/3dconv_dcs.py 

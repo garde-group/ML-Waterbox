@@ -13,8 +13,8 @@ Last Modified: 8/14/19
 '''
 
 import keras
+import time
 import numpy as np
-import matplotlib.pyplot as plt
 from keras import models
 from keras import layers
 from keras.utils import plot_model
@@ -88,36 +88,17 @@ callbacklist = [
 model.compile(optimizer='rmsprop', loss='mse', metrics=['mae'])
 history = model.fit(partial_train, partial_label, epochs=30, batch_size=128, validation_data=(val_data, val_label))
 
+
+val_loss = history.history['val_mean_absolute_error']
+
 results = model.evaluate(test_data, test_label)
-print(results[1])
-plt.rcParams.update({'font.size': 30})
+fname = "3conv"
+fname += str(time.time())
+out_file = open(fname, "w+")
+f.write(results[1])
+f.write("/n")
+for i in len(val_loss):
+    f.write(i)
+    f.write("/n")
 
-average_mae_history = history.history['val_mean_absolute_error']
-
-a = plt.figure(1)
-plt.plot(range(1, len(average_mae_history) + 1), average_mae_history)
-plt.xlabel('Epochs')
-plt.ylabel('Validation MAE')
-
-def smooth_curve(points, factor=0.9):
-    smoothed_points = []
-    for point in points:
-        if smoothed_points:
-            previous = smoothed_points[-1]
-            smoothed_points.append(previous * factor + point * (1 - factor))
-        else:
-            smoothed_points.append(point)
-    return smoothed_points
-
-smooth_mae_history = smooth_curve(average_mae_history[10:])
-b = plt.figure(2)
-plt.plot(range(1, len(smooth_mae_history) + 1), smooth_mae_history, 'b')
-plt.xlabel('Epochs')
-plt.ylabel('Validation MAE')
-plt.show()
-
-a.show()
-b.show()
-
-
-plt.show()
+f.close

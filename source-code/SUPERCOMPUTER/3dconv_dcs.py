@@ -3,10 +3,8 @@ This is the first attempted implementation of another idea I had. Since the 1D c
 anywhere, I am trying to implement a 3D version that makes (somewhat) more conceptual sense. Conv really makes sense for pictures or data that is borken down
 into "pixels" and since normal coordinates can be placed into that, make each coordinate into a whole number and it can. A 3d image where each slot in the array
 corresponds to a certain point in the smallest precision the coordinates are generated at.
-
 Update: Fixed the code so it actually runs, but I got an OOM (out of memory) error and this is my memory stats lol (at normal usage, not running the code)
 svmem(total=34195042304, available=23692992512, percent=30.7, used=10502049792, free=23692992512)
-
 Author: Owen Lockwood
 Version 1.1
 Last Modified: 8/14/19
@@ -92,13 +90,16 @@ history = model.fit(partial_train, partial_label, epochs=30, batch_size=128, val
 val_loss = history.history['val_mean_absolute_error']
 
 results = model.evaluate(test_data, test_label)
+
 fname = "3conv"
 fname += str(time.time())
+fname += ".txt"
 out_file = open(fname, "w+")
-f.write(results[1])
-f.write("/n")
-for i in len(val_loss):
-    f.write(i)
-    f.write("/n")
+out_file.write(str(results[1]))
+out_file.write("\n")
+out_file.write("\n")
+for i in val_loss:
+    out_file.write(str(i))
+    out_file.write("\n")
 
-f.close
+out_file.close

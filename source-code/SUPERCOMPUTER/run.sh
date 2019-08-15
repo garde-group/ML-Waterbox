@@ -1,5 +1,5 @@
 #!/bin/sh
-#SBATCH --time=10
+#SBATCH -t 355
 #SBATCH --job-name=OWEN_TEST
 #SBATCH --partition dcs
 #SBATCH --nodes 1

@@ -12,3 +12,5 @@ module load xl_r mpich cuda
 srun --gres=gpu:4 -n 4 ./bindProcessToGpu.sh python $path_binary/3dconv_dcs.py 
 
 set +x
+
+# -t in the srun for time, n 4? use dos2unix to fix /r error

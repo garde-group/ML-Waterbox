@@ -63,32 +63,56 @@ program data_format
                             end if
                         end do
                         sigma = 0
-                        do i = 1, 9, 3
+			do i = 1, 9, 3
                             ! I know I am doing needless calculations, I merely do so for readability purposes
-                            ab(1) = abs(points(i) - coord(k))
-                            ab(2) = abs(points(i + 1) - coord(k+1))
-                            ab(3) = abs(points(i + 2) - coord(k+2))
-                            if (ab(1) > 0.5 * side) ab(1) = ab(1) - side
-                            if (ab(2) > 0.5 * side) ab(2) = ab(2) - side
-                            if (ab(3) > 0.5 * side) ab(3) = ab(3) - side
+                            dx = abs(coord(k) - points(i))
+                            dy = abs(coord(k+1) - points(i + 1))
+                            dz = abs(coord(k+2) - points(i + 2))
+                            if (dx > 0.5 * side) then
+				if (coord(k) - points(i) > 0) points(i) = points(i) + side
+				if (coord(k) - points(i) < 0) points(i) = points(i) - side
+			    end if
+                            if (dy > 0.5 * side) then
+				if (coord(k+1) - points(i+1) > 0) points(i+1) = points(i+1) + side
+				if (coord(k+1) - points(i+1) < 0) points(i+1) = points(i+1) - side 
+			    end if
+                            if (dz > 0.5 * side) then
+				if (coord(k+2) - points(i+2) > 0) points(i+2) = points(i+2) + side
+				if (coord(k+2) - points(i+2) < 0) points(i+2) = points(i+2) - side
+			    end if
+			    ab(1) = coord(k) - points(i)
+                            ab(2) = coord(k + 1) - points(i+1)
+			    ab(3) = coord(k + 2) - points(i+2)
                             do j = i + 3, 12, 3
-                                bc(1) = abs(points(j) - coord(k))
-                                bc(2) = abs(points(j + 1) - coord(k+1))
-                                bc(3) = abs(points(j + 2) - coord(k+2))
-                                if (bc(1) > 0.5 * side) bc(1) = bc(1) - side
-                                if (bc(2) > 0.5 * side) bc(2) = bc(2) - side
-                                if (bc(3) > 0.5 * side) bc(3) = bc(3) - side
+                                dx = abs(coord(k) - points(j))
+                                dy = abs(coord(k+1) - points(j + 1))
+                                dz = abs(coord(k+2) - points(j + 2))
+                                if (dx > 0.5 * side) then
+				    if (coord(k) - points(j) > 0) points(j) = points(j) + side
+				    if (coord(k) - points(j) < 0) points(j) = points(j) - side
+				end if
+                                if (dy > 0.5 * side) then
+				    if (coord(k+1) - points(j+1) > 0) points(j+1) = points(j+1) + side
+				    if (coord(k+1) - points(j+1) < 0) points(j+1) = points(j+1) - side
+				end if
+                                if (dz > 0.5 * side) then
+				    if (coord(k+2) - points(j+2) > 0) points(j+2) = points(j+2) + side
+				    if (coord(k+2) - points(j+2) < 0) points(j+2) = points(j+2) - side
+				end if
+				bc(1) = coord(j) - coord(k)
+                                bc(2) = coord(j + 1) - coord(k+1)
+				bc(3) = coord(j + 2) - coord(k+2)
                                 !print *, ab(1), ab(2), ab(3), bc(1), bc(2), bc(3)
-                                ang = dot_product(ab, bc)
+                                ang = ab(1)*bc(1)+ab(2)*bc(2)+ab(3)*bc(3)
                                 !print *, ang
-                                ang = ang / ((sqrt(ab(1)**2 + ab(2)**2 + ab(3)**2)) * (sqrt(bc(1)**2 + bc(2)**2 + bc(3)**2)))
+                                ang = ang / (sqrt(ab(1)**2 + ab(2)**2 + ab(3)**2) * sqrt(bc(1)**2 + bc(2)**2 + bc(3)**2))
                                 !print *, "arrrr", acos(ang), results(c1, 1), results(c1, 2), results(c1, 3), points(i), &
                                 !points(i+1), points(i+2), points(j), points(j+1), points(j+2)
                                 !read(*,*)
                                 ang = (ang + 1.0/3.0)**2
                                 sigma = sigma + ang 
                             end do
-                        end do
+			end do
                         !print *, 'sigma', sigma
                         order = 1 - 3.0/8.0 * sigma
                         !if (order < 0) then 

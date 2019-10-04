@@ -1,4 +1,3 @@
-
 program data_format
     implicit none
     integer :: nuse, nskip, narg, i, nframe, uz, ret, &
@@ -6,7 +5,7 @@ program data_format
     real :: time, gbox(3,3), prec, bin, ength, side, reff
     character (len = 256) :: fname, xtcfile, arg(50), outfile
     real, allocatable :: coord(:), diff(:), up(:), results(:), orders(:)
-    real, allocatable :: distrib(:)
+    real, allocatable :: distrib(:), squared(:)
     integer :: x, y, z, c1, c2, total, numone, c3
     real :: pr, psize, dx, dy, dz, length, v, order, sigma, ang
     logical :: cave
@@ -14,16 +13,18 @@ program data_format
     real :: a, b, c, temp
     
     side = 5 ! Side length of box
-    nuse = 20 ! Number of frames to use
+    nuse = 50 ! Number of frames to use
     pnum = 4142 ! Number of particles
     na = 3
     nskip = 0
     bin = 0.01
-    xtcfile = 'ccni.xtc' ! Input file
-    outfile = 'tetra.dat' ! Output file
+    xtcfile = 'ccni2.xtc' ! Input file
+    outfile = 'tetraerror.dat' ! Output file
     print *, "Beginning formatting"
 
-    allocate(distrib(int(1/bin)))
+    allocate(distrib(int(2/bin)))
+    allocate(squared(int(2/bin)))
+    squared = 0
     distrib = 0
     coordnum = 3 * na * pnum
     allocate(coord(coordnum)) ! Coordinates to be read in
@@ -37,10 +38,15 @@ program data_format
     print *, total
     call xdrfopen(uz, xtcfile, 'r', ret)
     if (ret == 1) then
-        c1 = 0
+            c1 = 0
             do while (ret == 1 .and. nframe < (nskip + nuse))
                     call readxtc(uz, natoms, istep, time, gbox, &
                     coord, prec, ret)
+                    !do k = 1, 3
+                    !	do j = 1, 3
+                    !		print *, gbox(k,j)
+                    !	end do
+                    !end do
                     do k = 1, size(coord), 9
                         points = 0
                         dist = 10
@@ -55,6 +61,7 @@ program data_format
                             if (dz > 0.5 * side) dz = dz - side
                             length = sqrt(dx**2 + dy**2 + dz**2)
                             if(length < maxval(dist)) then
+                                !print *, maxloc(dist)
                                 c2 = (maxloc(dist, DIM=1) - 1) * 3 + 1
                                 dist(maxloc(dist)) = length
                                 points(c2) = coord(m)
@@ -68,16 +75,40 @@ program data_format
                                 dx = abs(coord(k) - points(i))
                                 dy = abs(coord(k+1) - points(i + 1))
                                 dz = abs(coord(k+2) - points(i + 2))
-                                if (dx > 0.5 * side) dx = dx - side
-                                if (dy > 0.5 * side) dy = dy - side
-                                if (dz > 0.5 * side) dz = dz - side
+                                if (dx > 0.5 * side) then
+                                    dx = dx - side
+                                    if (coord(k) - points(i) > 0) points(i) = points(i) + side
+                                    if (coord(k) - points(i) < 0) points(i) = points(i) - side
+                                end if
+                                if (dy > 0.5 * side) then
+                                    dy = dy - side
+                                    if (coord(k+1) - points(i+1) > 0) points(i+1) = points(i+1) + side
+                                    if (coord(k+1) - points(i+1) < 0) points(i+1) = points(i+1) - side
+                                end if
+                                if (dz > 0.5 * side) then
+                                    dz = dz - side
+                                    if (coord(k+2) - points(i+2) > 0) points(i+2) = points(i+2) + side
+                                    if (coord(k+2) - points(i+2) < 0) points(i+2) = points(i+2) - side
+                                end if
                                 a = sqrt(dx**2 + dy**2 + dz**2)
                                 dx = abs(coord(k) - points(j))
                                 dy = abs(coord(k+1) - points(j + 1))
                                 dz = abs(coord(k+2) - points(j + 2))
-                                if (dx > 0.5 * side) dx = dx - side
-                                if (dy > 0.5 * side) dy = dy - side
-                                if (dz > 0.5 * side) dz = dz - side
+                                if (dx > 0.5 * side) then
+                                    dx = dx - side
+                                    if (coord(k) - points(j) > 0) points(j) = points(j) + side
+                                    if (coord(k) - points(j) < 0) points(j) = points(j) - side
+                                end if
+                                if (dy > 0.5 * side) then
+                                    dy = dy - side
+                                    if (coord(k+1) - points(j+1) > 0) points(j+1) = points(j+1) + side
+                                    if (coord(k+1) - points(j+1) < 0) points(j+1) = points(j+1) - side
+                                end if
+                                if (dz > 0.5 * side) then
+                                    dz = dz - side
+                                    if (coord(k+2) - points(j+2) > 0) points(j+2) = points(j+2) + side
+                                    if (coord(k+2) - points(j+2) < 0) points(j+2) = points(j+2) - side
+                                end if
                                 b = sqrt(dx**2 + dy**2 + dz**2)
                                 dx = abs(points(i) - points(j))
                                 dy = abs(points(i + 1) - points(j + 1))
@@ -89,27 +120,30 @@ program data_format
                                 ang = real(c**2 - a**2 - b**2) / real(-2 * a *b)
                                 !ang = acos(ang)
                                 !print *, 'ang', ang
-                                !if (ang >= 0.99) then
+                                !if (ang >= 0.7) then
                                 !    print *, ang
                                 !    print *, coord(k), coord(k+1), coord(k+2)
                                 !    print *, points(i), points(i+1), points(i+2)
                                 !    print *, points(j), points(j+1), points(j+2)
                                 !end if
                                 ang = (ang + 1.0/3.0)**2
-                                !if (ang > 1.77) print *, ang
+                                !if (ang > 1.5) print *, ang
                                 sigma = sigma + ang
                             end do
                         end do
                         !print *, 'sigma', sigma
                         order = 1 - 3.0/8.0 * sigma
                         !if (order < 0) then 
-                        !    do m = 1, 15
-                        !        print *, results(c1, m)
+                        !    print *, order
+                        !    print *, coord(k), coord(k+1), coord(k+2)
+                        !    do m = 1, 12, 3
+                        !        print *, points(m), points(m+1), points(m+2)
                         !    end do 
                         !end if
                         !print *, 'order', order
-                        c3 = floor(order/bin)+1
-                        !distrib(c3) = distrib(c3) + 1
+                        c3 = floor((order+1)/bin)+1
+                        distrib(c3) = distrib(c3) + 1
+			squared(c3) = squared(c3) + 1
                         orders(c1) = order
                         results(c1) = order
                     end do
@@ -129,8 +163,10 @@ program data_format
     end do
     print *, numone
         ! Write to the file
-    do i = 1, int(1/bin)
-        write(10,*) i, distrib(i)
+    do i = 1, int(2/bin)
+	squared(i) = squared(i)**2
+        write(10,*) (i-1)*bin-1-0.5*bin, real(distrib(i))/real(pnum)*(100/nuse), sqrt((squared(i)/(real(pnum)*nuse)) &
+	 - (distrib(i)/(real(pnum)*nuse))**2) * 1/sqrt(real(nuse))
     end do
 
     write(*,*) ' '

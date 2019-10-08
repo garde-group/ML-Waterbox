@@ -1,29 +1,34 @@
-
-program data_format
+program tetra
     implicit none
     integer :: nuse, nskip, narg, i, nframe, uz, ret, &
      natoms, istep, j, k, m, pnum, na, coordnum
     real :: time, gbox(3,3), prec, bin, ength, side, reff
     character (len = 256) :: fname, xtcfile, arg(50), outfile
     real, allocatable :: coord(:), diff(:), up(:), results(:), orders(:)
-    real, allocatable :: distrib(:)
+    real, allocatable :: distrib(:), squared(:), temp(:), total(:)
     integer :: x, y, z, c1, c2, total, numone, c3
     real :: pr, psize, dx, dy, dz, length, v, order, sigma, ang
     logical :: cave
-    real :: dist(4), points(12), ab(3), bc(3)
+    real :: dist(4), points(12)
     real :: a, b, c, temp
     
     side = 5 ! Side length of box
-    nuse = 10 ! Number of frames to use
+    nuse = 45000 ! Number of frames to use
     pnum = 4142 ! Number of particles
     na = 3
     nskip = 0
     bin = 0.01
-    xtcfile = 'ccni.xtc' ! Input file
-    outfile = 'tetra.dat' ! Output file
+    xtcfile = 'ccni2.xtc' ! Input file
+    outfile = 'tetraerror.dat' ! Output file
     print *, "Beginning formatting"
 
-    allocate(distrib(int(1/bin)))
+    allocate(distrib(int(2/bin)))
+    allocate(squared(int(2/bin)))
+    allocate(temp(int(2/bin)))
+    allocate(total(int(2/bin)))
+    temp = 0
+    total = 0
+    squared = 0
     distrib = 0
     coordnum = 3 * na * pnum
     allocate(coord(coordnum)) ! Coordinates to be read in
@@ -37,10 +42,15 @@ program data_format
     print *, total
     call xdrfopen(uz, xtcfile, 'r', ret)
     if (ret == 1) then
-        c1 = 0
+            c1 = 0
             do while (ret == 1 .and. nframe < (nskip + nuse))
                     call readxtc(uz, natoms, istep, time, gbox, &
                     coord, prec, ret)
+                    !do k = 1, 3
+                    !	do j = 1, 3
+                    !		print *, gbox(k,j)
+                    !	end do
+                    !end do
                     do k = 1, size(coord), 9
                         points = 0
                         dist = 10
@@ -55,6 +65,7 @@ program data_format
                             if (dz > 0.5 * side) dz = dz - side
                             length = sqrt(dx**2 + dy**2 + dz**2)
                             if(length < maxval(dist)) then
+                                !print *, maxloc(dist)
                                 c2 = (maxloc(dist, DIM=1) - 1) * 3 + 1
                                 dist(maxloc(dist)) = length
                                 points(c2) = coord(m)
@@ -63,71 +74,75 @@ program data_format
                             end if
                         end do
                         sigma = 0
-			do i = 1, 9, 3
-                            ! I know I am doing needless calculations, I merely do so for readability purposes
-                            dx = abs(coord(k) - points(i))
-                            dy = abs(coord(k+1) - points(i + 1))
-                            dz = abs(coord(k+2) - points(i + 2))
-                            if (dx > 0.5 * side) then
-				if (coord(k) - points(i) > 0) points(i) = points(i) + side
-				if (coord(k) - points(i) < 0) points(i) = points(i) - side
-			    end if
-                            if (dy > 0.5 * side) then
-				if (coord(k+1) - points(i+1) > 0) points(i+1) = points(i+1) + side
-				if (coord(k+1) - points(i+1) < 0) points(i+1) = points(i+1) - side 
-			    end if
-                            if (dz > 0.5 * side) then
-				if (coord(k+2) - points(i+2) > 0) points(i+2) = points(i+2) + side
-				if (coord(k+2) - points(i+2) < 0) points(i+2) = points(i+2) - side
-			    end if
-			    ab(1) = coord(k) - points(i)
-                            ab(2) = coord(k + 1) - points(i+1)
-			    ab(3) = coord(k + 2) - points(i+2)
+                        do i = 1, 9, 3
                             do j = i + 3, 12, 3
+                                dx = abs(coord(k) - points(i))
+                                dy = abs(coord(k+1) - points(i + 1))
+                                dz = abs(coord(k+2) - points(i + 2))
+                                if (dx > 0.5 * side) then
+                                    dx = dx - side
+                                    if (coord(k) - points(i) > 0) points(i) = points(i) + side
+                                    if (coord(k) - points(i) < 0) points(i) = points(i) - side
+                                end if
+                                if (dy > 0.5 * side) then
+                                    dy = dy - side
+                                    if (coord(k+1) - points(i+1) > 0) points(i+1) = points(i+1) + side
+                                    if (coord(k+1) - points(i+1) < 0) points(i+1) = points(i+1) - side
+                                end if
+                                if (dz > 0.5 * side) then
+                                    dz = dz - side
+                                    if (coord(k+2) - points(i+2) > 0) points(i+2) = points(i+2) + side
+                                    if (coord(k+2) - points(i+2) < 0) points(i+2) = points(i+2) - side
+                                end if
+                                a = sqrt(dx**2 + dy**2 + dz**2)
                                 dx = abs(coord(k) - points(j))
                                 dy = abs(coord(k+1) - points(j + 1))
                                 dz = abs(coord(k+2) - points(j + 2))
                                 if (dx > 0.5 * side) then
-				    if (coord(k) - points(j) > 0) points(j) = points(j) + side
-				    if (coord(k) - points(j) < 0) points(j) = points(j) - side
-				end if
+                                    dx = dx - side
+                                    if (coord(k) - points(j) > 0) points(j) = points(j) + side
+                                    if (coord(k) - points(j) < 0) points(j) = points(j) - side
+                                end if
                                 if (dy > 0.5 * side) then
-				    if (coord(k+1) - points(j+1) > 0) points(j+1) = points(j+1) + side
-				    if (coord(k+1) - points(j+1) < 0) points(j+1) = points(j+1) - side
-				end if
+                                    dy = dy - side
+                                    if (coord(k+1) - points(j+1) > 0) points(j+1) = points(j+1) + side
+                                    if (coord(k+1) - points(j+1) < 0) points(j+1) = points(j+1) - side
+                                end if
                                 if (dz > 0.5 * side) then
-				    if (coord(k+2) - points(j+2) > 0) points(j+2) = points(j+2) + side
-				    if (coord(k+2) - points(j+2) < 0) points(j+2) = points(j+2) - side
-				end if
-				bc(1) = coord(j) - coord(k)
-                                bc(2) = coord(j + 1) - coord(k+1)
-				bc(3) = coord(j + 2) - coord(k+2)
-                                !print *, ab(1), ab(2), ab(3), bc(1), bc(2), bc(3)
-                                ang = ab(1)*bc(1)+ab(2)*bc(2)+ab(3)*bc(3)
-                                !print *, ang
-                                ang = ang / (sqrt(ab(1)**2 + ab(2)**2 + ab(3)**2) * sqrt(bc(1)**2 + bc(2)**2 + bc(3)**2))
-                                !print *, "arrrr", acos(ang), results(c1, 1), results(c1, 2), results(c1, 3), points(i), &
-                                !points(i+1), points(i+2), points(j), points(j+1), points(j+2)
-                                !read(*,*)
+                                    dz = dz - side
+                                    if (coord(k+2) - points(j+2) > 0) points(j+2) = points(j+2) + side
+                                    if (coord(k+2) - points(j+2) < 0) points(j+2) = points(j+2) - side
+                                end if
+                                b = sqrt(dx**2 + dy**2 + dz**2)
+                                dx = abs(points(i) - points(j))
+                                dy = abs(points(i + 1) - points(j + 1))
+                                dz = abs(points(i + 2) - points(j + 2))
+                                if (dx > 0.5 * side) dx = dx - side
+                                if (dy > 0.5 * side) dy = dy - side
+                                if (dz > 0.5 * side) dz = dz - side
+                                c = sqrt(dx**2 + dy**2 + dz**2)
+                                ang = real(c**2 - a**2 - b**2) / real(-2 * a *b)
                                 ang = (ang + 1.0/3.0)**2
-                                sigma = sigma + ang 
+                                !if (ang > 1.5) print *, ang
+                                sigma = sigma + ang
                             end do
-			end do
-                        !print *, 'sigma', sigma
+                        end do
                         order = 1 - 3.0/8.0 * sigma
-                        !if (order < 0) then 
-                        !    do m = 1, 15
-                        !        print *, results(c1, m)
-                        !    end do 
-                        !end if
-                        !print *, 'order', order
-                        c3 = floor(order/bin)+1
-                        !distrib(c3) = distrib(c3) + 1
+                        c3 = floor((order+1)/bin)+1
+			total(c3) = total(c3) + 1
+			temp(c3) = temp(c3) + 1
                         orders(c1) = order
                         results(c1) = order
                     end do
                     print *, nframe
                     nframe = nframe + 1
+		    if (mod(nframe, 5000) == 0) then
+			do i = 1, size(temp)
+			    distrib(i) = distrib(i) + temp(i)/5000.
+			    squared(i) = squared(i) + (temp(i)**2)/5000.
+			end do
+	`		temp = 0
+		    end if
             end do
     else
             write(*,*) 'Error in the xdrfopen'
@@ -135,19 +150,21 @@ program data_format
     end if
 
     print *, maxval(orders), minval(orders)
-        ! These prints are used for debugging
     numone = 0
-    do i = 1, size(orders) 
-        if (orders(i) < 0) numone = numone + 1 !print *, orders(i)
-    end do
-    print *, numone
+    !do i = 1, size(orders) 
+    !    if (orders(i) < 0) numone = numone + 1 !print *, orders(i)
+    !end do
+    !print *, numone
         ! Write to the file
-    do i = 1, int(1/bin)
-        write(10,*) i, distrib(i)
+    do i = 1, int(2/bin)
+	squared(i) = squared(i)/9.
+	distrib(i) = distrib(i)/9.
+        write(10,*) (i-1)*bin-1-0.5*bin, real(distrib(i))/real(pnum)*(100/nuse), sqrt((squared(i)/(real(pnum)) &
+	 - (distrib(i)/(real(pnum))**2)) * 1/sqrt(real(9)
     end do
 
     write(*,*) ' '
     write(*,*) 'Done'
     write(*,*) ' '
     
-end program data_format
+end program tetra

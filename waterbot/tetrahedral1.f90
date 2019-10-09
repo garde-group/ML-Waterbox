@@ -165,8 +165,8 @@ program data_format
         ! Write to the file
     do i = 1, int(2/bin)
 	squared(i) = squared(i)**2
-        write(10,*) (i-1)*bin-1-0.5*bin, real(distrib(i))/real(pnum)*(100/nuse), sqrt((squared(i)/(real(pnum)*nuse)) &
-	 - (distrib(i)/(real(pnum)*nuse))**2) * 1/sqrt(real(nuse))
+        write(10,*) (i-1)*bin-1-0.5*bin, real(distrib(i))/real(pnum)*(100./nuse), sqrt((squared(i)/real(pnum)*(100./nuse)) &
+	 - (distrib(i)/real(pnum)*real(100./nuse))**2) * 1/sqrt(real(nuse))
     end do
 
     write(*,*) ' '

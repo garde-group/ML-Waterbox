@@ -1,3 +1,4 @@
+! THIS IS THE ONE TO USE, I HAVE NOT UPDATED TETRAHEDRAL1.F90
 program tetra
     implicit none
     integer :: nuse, nskip, narg, i, nframe, uz, ret, &
@@ -13,8 +14,8 @@ program tetra
     real :: a, b, c, n
     
     side = 5 ! Side length of box
-    nuse = 100 ! Number of frames to use
-    step = 2
+    nuse = 1000 ! Number of frames to use
+    step = 100
     n = 0
     pnum = 4142 ! Number of particles
     na = 3
@@ -141,8 +142,8 @@ program tetra
 		    if (mod(nframe, step) == 0) then
 			n = n + 1
 			do i = 1, size(temp)
-			    distrib(i) = distrib(i) + temp(i)/(real(pnum)) * real(100/step)
-			    squared(i) = squared(i) + ((temp(i))/(real(pnum)) * real(100/step))**2
+			    distrib(i) = distrib(i) + temp(i)/(real(pnum)) * real(100./step)
+			    squared(i) = squared(i) + ((temp(i))/(real(pnum)) * real(100./step))**2
 			end do
 			temp = 0
 		    end if
@@ -164,8 +165,8 @@ program tetra
 	!print *, "PRE ", squared(i), distrib(i)
 	squared(i) = squared(i)/n
 	distrib(i) = distrib(i)/n
-	print *, squared(i), distrib(i), sqrt(squared(i) - distrib(i)**2)
-        write(10,*) (i-1)*bin-1-0.5*bin, real(totals(i))/real(pnum)*(100/nuse), 1/sqrt(n) * &
+	!print *, totals(i), real(totals(i))/real(pnum), real(10./nuse), real(totals(i))/real(pnum)*real(100/nuse)
+        write(10,*) (i-1)*bin-1-0.5*bin, real(totals(i))/real(pnum)*real(100./nuse), 1/sqrt(n) * &
 	sqrt(squared(i) - distrib(i)**2)
     end do
 

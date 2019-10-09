@@ -5,29 +5,31 @@ program tetra
     real :: time, gbox(3,3), prec, bin, ength, side, reff
     character (len = 256) :: fname, xtcfile, arg(50), outfile
     real, allocatable :: coord(:), diff(:), up(:), results(:), orders(:)
-    real, allocatable :: distrib(:), squared(:), temp(:), total(:)
-    integer :: x, y, z, c1, c2, total, numone, c3
+    real, allocatable :: distrib(:), squared(:), temp(:), totals(:)
+    integer :: x, y, z, c1, c2, total, numone, c3, step
     real :: pr, psize, dx, dy, dz, length, v, order, sigma, ang
     logical :: cave
     real :: dist(4), points(12)
-    real :: a, b, c, temp
+    real :: a, b, c, n
     
     side = 5 ! Side length of box
-    nuse = 45000 ! Number of frames to use
+    nuse = 100 ! Number of frames to use
+    step = 2
+    n = 0
     pnum = 4142 ! Number of particles
     na = 3
     nskip = 0
     bin = 0.01
-    xtcfile = 'ccni2.xtc' ! Input file
+    xtcfile = 'ccni.xtc' ! Input file
     outfile = 'tetraerror.dat' ! Output file
     print *, "Beginning formatting"
 
     allocate(distrib(int(2/bin)))
     allocate(squared(int(2/bin)))
     allocate(temp(int(2/bin)))
-    allocate(total(int(2/bin)))
+    allocate(totals(int(2/bin)))
     temp = 0
-    total = 0
+    totals = 0
     squared = 0
     distrib = 0
     coordnum = 3 * na * pnum
@@ -129,19 +131,20 @@ program tetra
                         end do
                         order = 1 - 3.0/8.0 * sigma
                         c3 = floor((order+1)/bin)+1
-			total(c3) = total(c3) + 1
+			totals(c3) = totals(c3) + 1
 			temp(c3) = temp(c3) + 1
                         orders(c1) = order
                         results(c1) = order
                     end do
                     print *, nframe
                     nframe = nframe + 1
-		    if (mod(nframe, 5000) == 0) then
+		    if (mod(nframe, step) == 0) then
+			n = n + 1
 			do i = 1, size(temp)
-			    distrib(i) = distrib(i) + temp(i)/(real(pnum) * (100/5000.)
-			    squared(i) = squared(i) + (temp(i)**2)/(real(pnum) * (100/5000.)
+			    distrib(i) = distrib(i) + temp(i)/(real(pnum)) * real(100/step)
+			    squared(i) = squared(i) + ((temp(i))/(real(pnum)) * real(100/step))**2
 			end do
-	`		temp = 0
+			temp = 0
 		    end if
             end do
     else
@@ -156,11 +159,14 @@ program tetra
     !end do
     !print *, numone
         ! Write to the file
+    print *, n
     do i = 1, int(2/bin)
-	squared(i) = squared(i)/9.
-	distrib(i) = distrib(i)/9.
-        write(10,*) (i-1)*bin-1-0.5*bin, real(distrib(i))/real(pnum)*(100/nuse), sqrt((squared(i)/(real(pnum)) &
-	 - (distrib(i)/(real(pnum))**2)) * 1/sqrt(real(9)
+	!print *, "PRE ", squared(i), distrib(i)
+	squared(i) = squared(i)/n
+	distrib(i) = distrib(i)/n
+	print *, squared(i), distrib(i), sqrt(squared(i) - distrib(i)**2)
+        write(10,*) (i-1)*bin-1-0.5*bin, real(totals(i))/real(pnum)*(100/nuse), 1/sqrt(n) * &
+	sqrt(squared(i) - distrib(i)**2)
     end do
 
     write(*,*) ' '

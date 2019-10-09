@@ -138,8 +138,8 @@ program tetra
                     nframe = nframe + 1
 		    if (mod(nframe, 5000) == 0) then
 			do i = 1, size(temp)
-			    distrib(i) = distrib(i) + temp(i)/5000.
-			    squared(i) = squared(i) + (temp(i)**2)/5000.
+			    distrib(i) = distrib(i) + temp(i)/(real(pnum) * (100/5000.)
+			    squared(i) = squared(i) + (temp(i)**2)/(real(pnum) * (100/5000.)
 			end do
 	`		temp = 0
 		    end if

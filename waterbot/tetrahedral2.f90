@@ -1,11 +1,10 @@
-! THIS IS THE ONE TO USE, I HAVE NOT UPDATED TETRAHEDRAL1.F90
 program tetra
     implicit none
     integer :: nuse, nskip, narg, i, nframe, uz, ret, &
      natoms, istep, j, k, m, pnum, na, coordnum
     real :: time, gbox(3,3), prec, bin, ength, side, reff
-    character (len = 256) :: fname, xtcfile, arg(50), outfile
-    real, allocatable :: coord(:), diff(:), up(:), results(:), orders(:)
+    character (len = 256) :: fname, xtcfile, arg(50), outfile, c_out
+    real, allocatable :: coord(:), diff(:), up(:), results(:,:), orders(:)
     real, allocatable :: distrib(:), squared(:), temp(:), totals(:)
     integer :: x, y, z, c1, c2, total, numone, c3, step
     real :: pr, psize, dx, dy, dz, length, v, order, sigma, ang
@@ -14,15 +13,16 @@ program tetra
     real :: a, b, c, n
     
     side = 5 ! Side length of box
-    nuse = 1000 ! Number of frames to use
-    step = 100
+    nuse = 100 ! Number of frames to use
+    step = 10
     n = 0
     pnum = 4142 ! Number of particles
     na = 3
     nskip = 0
     bin = 0.01
     xtcfile = 'ccni.xtc' ! Input file
-    outfile = 'tetraerror.dat' ! Output file
+    outfile = 'tetraerror2.dat' ! Output file
+    c_out = 'tetra_coord.dat'
     print *, "Beginning formatting"
 
     allocate(distrib(int(2/bin)))
@@ -38,10 +38,11 @@ program tetra
     coord = 0
     total = pnum * nuse
     allocate(orders(total))
-    allocate(results(total)) ! The output, the starting coordinate and the 4 other coordinates, with the final one being the order paramter
+    allocate(results(total, 16)) ! The output, the starting coordinate and the 4 other coordinates, with the final one being the order paramter
     nframe = 0
     numone = 0
     open(unit = 10, file = outfile)
+    open(unit = 11, file = c_out)
     print *, total
     call xdrfopen(uz, xtcfile, 'r', ret)
     if (ret == 1) then
@@ -58,6 +59,9 @@ program tetra
                         points = 0
                         dist = 10
                         c1 = c1 + 1
+			results(c1, 1) = coord(k)
+			results(c1, 2) = coord(k+1)
+			results(c1, 3) = coord(k+2)
                         do m = 1, size(coord), 9
                             if (m == k) cycle
                             dx = abs(coord(k) - coord(m))
@@ -76,6 +80,9 @@ program tetra
                                 points(c2+2) = coord(m+2)
                             end if
                         end do
+			do m = 1, size(points)
+				results(c1, m+3) = points(m)
+			end do
                         sigma = 0
                         do i = 1, 9, 3
                             do j = i + 3, 12, 3
@@ -135,7 +142,7 @@ program tetra
 			totals(c3) = totals(c3) + 1
 			temp(c3) = temp(c3) + 1
                         orders(c1) = order
-                        results(c1) = order
+                        results(c1, 16) = order
                     end do
                     print *, nframe
                     nframe = nframe + 1
@@ -168,6 +175,12 @@ program tetra
 	!print *, totals(i), real(totals(i))/real(pnum), real(10./nuse), real(totals(i))/real(pnum)*real(100/nuse)
         write(10,*) (i-1)*bin-1-0.5*bin, real(totals(i))/real(pnum)*real(100./nuse), 1/sqrt(n) * &
 	sqrt(squared(i) - distrib(i)**2)
+    end do
+    do i = 1, total
+	do j = 1, 16
+        	write(11,"(F10.3)",advance='no') results(i, j)
+        end do
+	write(11,*)
     end do
 
     write(*,*) ' '

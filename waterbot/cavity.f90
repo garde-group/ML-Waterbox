@@ -5,21 +5,24 @@ program data_format
     real :: time, gbox(3,3), prec, bin, side, reff, cavbin
     character (len = 256) :: fname, xtcfile, arg(50), outfile
     real, allocatable :: coord(:), diff(:), up(:), results(:)
-    integer :: gridsize, x, y, z, c1, c2, total, s
-    real :: pr, psize, dx, dy, dz, length, v, small
+    real, allocatable :: squared(:), temp(:), totals(:)
+    integer :: gridsize, x, y, z, c1, c2, total, s, step
+    real :: pr, psize, dx, dy, dz, length, v, small, n
     logical :: cave
     
     side = 5
     pr = 0.316563
-    nuse = 10
+    nuse = 50
     pnum = 4142
     na = 3
     psize = 0.15
     bin = 0.1
     nskip = 0
+    n = 0
     cavbin = 0.01
+    step = 10
     xtcfile = 'ccni.xtc' 
-    outfile = 'cav1.dat'
+    outfile = 'caverror.dat'
     print *, "Beginning formatting"
 
     gridsize = ceiling(side/bin)
@@ -29,6 +32,9 @@ program data_format
     total = gridsize**3 * nuse
     s = .5/cavbin
     allocate(results(s))
+    allocate(squared(s))
+    allocate(temp(s))
+    allocate(totals(s))
     nframe = 0
     open(unit = 10, file = outfile)
     call xdrfopen(uz, xtcfile, 'r', ret)
@@ -54,7 +60,16 @@ program data_format
                                         small = min(length, small)
                                 end do
                                 c2 = floor(small/cavbin) + 1
-                                results(c2) = results(c2) + 1
+                                temp(c2) = temp(c2) + 1
+				totals(c2) = totals(c2) + 1
+				if (mod(nframe, step) == 0) then
+					n = n + 1
+					do i = 1, size(temp)
+						results(i) = results(i) + temp(i)/(real(gridsize**3)) * real(100./step)
+						squared(i) = squared(i) + (temp(i)/(real(gridsize**3)) * real(100./step))**2
+					end do
+					temp = 0			
+				end if
                             end do
                         end do
                     end do
@@ -68,8 +83,10 @@ program data_format
 
     print *, 'Out of main do'
     do i = 1, size(results)
-        results(i) = results(i) / (gridsize**3 * nuse)
-        write(10,*) i*cavbin, results(i)
+	results(i) = results(i)/n
+	squared(i) = squared(i)/n
+        write(10,*) i*cavbin-0.5*cavbin, totals(i)/real(gridsize**3) * real(100./nuse), 1/sqrt(n) * & 
+	sqrt(squared(i) - results(i)**2)
     end do
 
     write(*,*) ' '

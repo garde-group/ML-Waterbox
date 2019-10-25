@@ -18,12 +18,13 @@ import keras
 from keras import models
 from keras import layers
 from keras import optimizers
+from keras import backend as K
 import matplotlib.pyplot as plt
 
 
 # Hardcoded defaults
 NUM_COORD = 15
-SIZE = 41420
+SIZE = 4142
 IN_FILE = "tetra_coord.dat"
 
 all_data = np.zeros(shape=(SIZE, NUM_COORD))
@@ -74,6 +75,7 @@ for i in range(SIZE):
 		td_data[i][int(j/3)-1][2] = all_data[i][j+2]
 		j += 3
 
+print(td_data[0])
 partial_train = td_data[:int(4*SIZE/5)]
 partial_label = all_labels[:int(4*SIZE/5)]
 val_data = td_data[int(4*SIZE/5):int(9*SIZE//10)]
@@ -89,10 +91,7 @@ model.add(layers.Dense(64, activation='relu'))
 model.add(layers.Dense(64, activation='relu'))
 model.add(layers.Dense(128, activation='relu'))
 model.add(layers.Dense(1024, activation='relu'))
-for layer in model.layers:
-    print(layer.output_shape)
-# UNDERSTAND THIS BETTER
-model.add(layers.MaxPooling1D(pool_size=n))
+model.add(layers.MaxPooling1D(pool_size=4))
 model.add(layers.Flatten())
 model.add(layers.Dense(512, activation='relu'))
 model.add(layers.Dense(256, activation='relu'))
@@ -107,7 +106,7 @@ history = model.fit(partial_train, partial_label, shuffle=True, epochs=20, \
 batch_size=64, validation_data=(val_data,val_label))
 
 results = model.evaluate(test_data, test_label)
-print(results[i])
+print(results[1])
 
 average_mae_history = history.history['val_mean_absolute_error']
 
@@ -120,11 +119,14 @@ def smooth_curve(points, factor=0.9):
 		else:
 			smoothed_points.append(point)
 	return smoothed_points
+smooth_mae_history = smooth_curve(average_mae_history[10:])
 a = plt.figure(1)
 plt.plot(range(1, len(average_mae_history) + 1), average_mae_history, 'blue', label='Average MAE')
 plt.plot(range(1, len(smooth_mae_history) + 1), smooth_mae_history, 'olive', label='Smooth')
 plt.xlabel('Epochs')
 plt.ylabel('Validation MAE')
+
+
 
 a.show()
 

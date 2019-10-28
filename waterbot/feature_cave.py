@@ -8,7 +8,7 @@ GA hyperparameter optimization. Note for future attempts (group meeting):
 Different amount of coordinates/cutoff?
 
 Version 1.0
-10/22/2019
+10/28/2019
 Owen Lockwood
 '''
 

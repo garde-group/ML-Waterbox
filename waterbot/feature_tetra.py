@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 
 # Hardcoded defaults
 NUM_COORD = 15
-SIZE = 4142
+SIZE = 414200
 IN_FILE = "tetra_coord.dat"
 
 all_data = np.zeros(shape=(SIZE, NUM_COORD))
@@ -82,8 +82,15 @@ val_data = td_data[int(4*SIZE/5):int(9*SIZE//10)]
 val_label = all_labels[int(4*SIZE/5):int(9*SIZE//10)]
 test_data = td_data[int(9*SIZE//10):]
 test_label = all_labels[int(9*SIZE//10):]
-
+#test_data = td_data[int(4*SIZE/5):]
+#test_label = all_labels[int(4*SIZE/5):]
 n = 4
+
+cbs = [
+    keras.callbacks.ModelCheckpoint("tetramodel.h5", monitor='val_mean_absolute_error', verbose=0, save_best_only=True)
+]
+np.save("test_data", test_data)
+np.save("test_label", test_label)
 
 model = models.Sequential()
 model.add(layers.Dense(64, activation='relu', input_shape=(4,3,)))
@@ -102,8 +109,8 @@ for layer in model.layers:
 adam = optimizers.Adam(lr=0.001)
 model.compile(optimizer=adam, loss='mse', metrics=['mae'])
 
-history = model.fit(partial_train, partial_label, shuffle=True, epochs=20, \
-batch_size=64, validation_data=(val_data,val_label))
+history = model.fit(partial_train, partial_label, shuffle=True, epochs=30, \
+batch_size=64, callbacks=cbs, validation_data=(val_data,val_label))
 
 results = model.evaluate(test_data, test_label)
 print(results[1])
@@ -123,11 +130,9 @@ smooth_mae_history = smooth_curve(average_mae_history[10:])
 a = plt.figure(1)
 plt.plot(range(1, len(average_mae_history) + 1), average_mae_history, 'blue', label='Average MAE')
 plt.plot(range(1, len(smooth_mae_history) + 1), smooth_mae_history, 'olive', label='Smooth')
+plt.legend()
 plt.xlabel('Epochs')
 plt.ylabel('Validation MAE')
-
-
-
 a.show()
 
 plt.show()

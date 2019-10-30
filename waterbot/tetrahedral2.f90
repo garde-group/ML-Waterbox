@@ -18,11 +18,11 @@ program tetra
     n = 0
     pnum = 4142 ! Number of particles
     na = 3
-    nskip = 0
+    nskip = 100
     bin = 0.01
     xtcfile = 'ccni.xtc' ! Input file
-    outfile = 'tetraerror2.dat' ! Output file
-    c_out = 'tetra_coord.dat'
+    outfile = 'tetra_skip.dat' ! Output file
+    c_out = 'tetra_skip_coord.dat'
     print *, "Beginning formatting"
 
     allocate(distrib(int(2/bin)))
@@ -55,6 +55,10 @@ program tetra
                     !		print *, gbox(k,j)
                     !	end do
                     !end do
+		    if (nframe < nskip) then
+			nframe = nframe + 1
+			cycle
+		    end if
                     do k = 1, size(coord), 9
                         points = 0
                         dist = 10
@@ -173,7 +177,7 @@ program tetra
 	squared(i) = squared(i)/n
 	distrib(i) = distrib(i)/n
 	!print *, totals(i), real(totals(i))/real(pnum), real(10./nuse), real(totals(i))/real(pnum)*real(100/nuse)
-        write(10,*) (i-1)*bin-1-0.5*bin, real(totals(i))/real(pnum)*real(100./nuse), 1/sqrt(n) * &
+        write(10,*) (i-1)*bin-1+0.5*bin, real(totals(i))/real(pnum)*real(100./nuse)*real(bin/0.01), 1/sqrt(n) * &
 	sqrt(squared(i) - distrib(i)**2)
     end do
     do i = 1, total

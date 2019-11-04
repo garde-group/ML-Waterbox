@@ -6,9 +6,11 @@ GA hyperparameter optimization. Note for future attempts (group meeting):
 -DeepHyperNEAT?????
 
 Different amount of coordinates/cutoff?
+1.1 Added callbacks? (I think, I'm writing the documentation after the code so who even knows)
 
-Version 1.0
-10/28/2019
+
+Version 1.1
+11/4/2019
 Owen Lockwood
 '''
 
@@ -24,7 +26,7 @@ import matplotlib.pyplot as plt
 
 # Hardcoded defaults
 NUM_COORD = 33
-SIZE = 10000
+SIZE = 500000
 IN_FILE = "cave_coord.dat"
 
 all_data = np.zeros(shape=(SIZE, NUM_COORD))
@@ -37,7 +39,6 @@ with open(IN_FILE) as f:
 			break
 		l = line.split('    ')
 		l = l[1:]
-		l[15] = l[15].strip()		
 		for i in range(len(l)):
 			l[i] = float(l[i])
 		all_data[count] = l[:NUM_COORD]
@@ -84,7 +85,9 @@ test_data = td_data[int(9*SIZE//10):]
 test_label = all_labels[int(9*SIZE//10):]
 
 n = 4
-
+cbs = [
+    keras.callbacks.ModelCheckpoint("cavemodel.h5", monitor='val_mean_absolute_error', verbose=0, save_best_only=True)
+]
 model = models.Sequential()
 model.add(layers.Dense(64, activation='relu', input_shape=(10,3,)))
 model.add(layers.Dense(64, activation='relu'))
@@ -102,8 +105,8 @@ for layer in model.layers:
 adam = optimizers.Adam(lr=0.001)
 model.compile(optimizer=adam, loss='mse', metrics=['mae'])
 
-history = model.fit(partial_train, partial_label, shuffle=True, epochs=20, \
-batch_size=64, validation_data=(val_data,val_label))
+history = model.fit(partial_train, partial_label, shuffle=True, epochs=30, \
+batch_size=64, callbacks=cbs, validation_data=(val_data,val_label))
 
 results = model.evaluate(test_data, test_label)
 print(results[1])
@@ -123,6 +126,7 @@ smooth_mae_history = smooth_curve(average_mae_history[10:])
 a = plt.figure(1)
 plt.plot(range(1, len(average_mae_history) + 1), average_mae_history, 'blue', label='Average MAE')
 plt.plot(range(1, len(smooth_mae_history) + 1), smooth_mae_history, 'olive', label='Smooth')
+plt.legend()
 plt.xlabel('Epochs')
 plt.ylabel('Validation MAE')
 
@@ -131,31 +135,3 @@ plt.ylabel('Validation MAE')
 a.show()
 
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

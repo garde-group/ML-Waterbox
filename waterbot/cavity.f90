@@ -25,7 +25,7 @@ program cavity
     num_p = 10 
     num_coord = num_p*3 + 3 + 1
     xtcfile = 'ccni.xtc' 
-    outfile = 'caverror.dat'
+    outfile = 'cave.dat'
     coord_file = 'cave_coord.dat'
     print *, "Beginning formatting"
 
@@ -41,18 +41,22 @@ program cavity
     allocate(totals(s))
     allocate(dist(num_p))
     allocate(points(num_p*3))
-    print *, total
     allocate(up(total, num_coord))
     nframe = 0
     open(unit = 10, file = outfile)
     open(unit = 11, file = coord_file)
     call xdrfopen(uz, xtcfile, 'r', ret)
+    print *, "Total: ", total
     results = 0
     if (ret == 1) then
         c1 = 0
             do while (ret == 1 .and. nframe < (nskip + nuse))
                     call readxtc(uz, natoms, istep, time, gbox, &
                     coord, prec, ret)
+		    if (nframe < nskip) then
+			nframe = nframe + 1
+			cycle
+		    end if
                     do x = 1, gridsize
                         do y = 1, gridsize
                             do z = 1, gridsize
@@ -107,7 +111,7 @@ program cavity
             stop
     end if
 
-    print *, 'Out of main do'
+    print *, 'Out of main do '
     do i = 1, size(results)
 	results(i) = results(i)/n
 	squared(i) = squared(i)/n

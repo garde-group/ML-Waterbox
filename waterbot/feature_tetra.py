@@ -1,14 +1,13 @@
 '''
-This is just a simple first attempt at some feature extraction. If this finds some success I can do more to improve it, I kinda want to try
-GA hyperparameter optimization. Note for future attempts (group meeting):
--CNN (1D, 2D, 3D)
--Dense
--DeepHyperNEAT?????
+Version Notes
+1.0: Made file 
+1.1: Added callback
+1.2: Slightly modified network
 
-Different amount of coordinates/cutoff?
 
-Version 1.0
-10/22/2019
+
+Version 1.2
+11/12/2019
 Owen Lockwood
 '''
 
@@ -87,17 +86,24 @@ test_label = all_labels[int(9*SIZE//10):]
 n = 4
 
 cbs = [
-    keras.callbacks.ModelCheckpoint("tetramodel.h5", monitor='val_mean_absolute_error', verbose=0, save_best_only=True)
+    keras.callbacks.ModelCheckpoint("tetramodelconv.h5", monitor='val_mean_absolute_error', verbose=0, save_best_only=True)
 ]
-np.save("test_data", test_data)
-np.save("test_label", test_label)
+#np.save("test_data", test_data)
+#np.save("test_label", test_label)
 
 model = models.Sequential()
-model.add(layers.Dense(64, activation='relu', input_shape=(4,3,)))
-model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dense(128, activation='relu'))
-model.add(layers.Dense(1024, activation='relu'))
+#model.add(layers.Dense(64, activation='relu', input_shape=(4,3,)))
+#model.add(layers.Dense(64, activation='relu'))
+#model.add(layers.Dense(128, activation='relu'))
+#model.add(layers.Dense(256, activation='relu'))
+#model.add(layers.Dense(1024, activation='relu'))
+model.add(layers.Conv1D(64, 1, activation='relu', input_shape=(4,3)))
+#for layer in model.layers:
+#    print(layer.output_shape)
+model.add(layers.Conv1D(64, 1, activation='relu'))
+model.add(layers.Conv1D(128, 1, activation='relu'))
+model.add(layers.Conv1D(256, 1, activation='relu'))
+model.add(layers.Conv1D(1024, 1, activation='relu'))
 model.add(layers.MaxPooling1D(pool_size=4))
 model.add(layers.Flatten())
 model.add(layers.Dense(512, activation='relu'))
@@ -109,7 +115,7 @@ for layer in model.layers:
 adam = optimizers.Adam(lr=0.001)
 model.compile(optimizer=adam, loss='mse', metrics=['mae'])
 
-history = model.fit(partial_train, partial_label, shuffle=True, epochs=30, \
+history = model.fit(partial_train, partial_label, shuffle=True, epochs=50, \
 batch_size=64, callbacks=cbs, validation_data=(val_data,val_label))
 
 results = model.evaluate(test_data, test_label)
@@ -133,6 +139,9 @@ plt.plot(range(1, len(smooth_mae_history) + 1), smooth_mae_history, 'olive', lab
 plt.legend()
 plt.xlabel('Epochs')
 plt.ylabel('Validation MAE')
+
+
+
 a.show()
 
 plt.show()

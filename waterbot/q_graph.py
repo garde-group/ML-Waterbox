@@ -2,10 +2,11 @@
 Version Notes
 1.0: Made file, this demonstrates the ML vs existing FORTRAN/actual graph of q 
 1.1: Added heatmap functionality (likely still in process)
+1.2: Added Colorbars to heatmaps
 
 
-Version 1.1
-11/8/2019
+Version 1.2
+11/12/2019
 Owen Lockwood
 '''
 
@@ -130,7 +131,7 @@ with open("tetra_skip.dat") as a:
 
 model = load_model("tetramodel.h5")
 pre = model.predict(td_data)
-print(pre[0], len(pre))
+#print(pre[0], len(pre))
 for i in range(len(pre)):
 	j = math.floor((pre[i]+1)/bin)
 	if (j >= 200):
@@ -155,6 +156,7 @@ plt.ylabel('Prob')
 # heat map actual
 b = plt.figure(2)
 plt.scatter(heat_y, heat_z, s=100, c=ss_label, cmap="hot", alpha=0.9)
+plt.colorbar()
 plt.xlabel("y axis")
 plt.ylabel("z axis")
 plt.title("Actual")
@@ -163,9 +165,11 @@ plt.title("Actual")
 # heat map ML
 c = plt.figure(3)
 plt.scatter(heat_y, heat_z, s=100, c=heat_pre, cmap="hot", alpha=0.9)
+plt.colorbar()
 plt.xlabel("y axis")
 plt.ylabel("z axis")
 plt.title("ML")
+
 
 a.show()
 b.show()

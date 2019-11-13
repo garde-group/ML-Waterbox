@@ -1,16 +1,10 @@
 '''
-This is just a simple first attempt at some feature extraction. If this finds some success I can do more to improve it, I kinda want to try
-GA hyperparameter optimization. Note for future attempts (group meeting):
--CNN (1D, 2D, 3D)
--Dense
--DeepHyperNEAT?????
-
-Different amount of coordinates/cutoff?
 1.1 Added callbacks? (I think, I'm writing the documentation after the code so who even knows)
+1.2 Added 1D CNN
 
 
-Version 1.1
-11/4/2019
+Version 1.2
+11/13/2019
 Owen Lockwood
 '''
 
@@ -89,11 +83,16 @@ cbs = [
     keras.callbacks.ModelCheckpoint("cavemodel.h5", monitor='val_mean_absolute_error', verbose=0, save_best_only=True)
 ]
 model = models.Sequential()
-model.add(layers.Dense(64, activation='relu', input_shape=(10,3,)))
-model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dense(128, activation='relu'))
-model.add(layers.Dense(1024, activation='relu'))
+#model.add(layers.Dense(64, activation='relu', input_shape=(10,3,)))
+#model.add(layers.Dense(64, activation='relu'))
+#model.add(layers.Dense(128, activation='relu'))
+#model.add(layers.Dense(256, activation='relu'))
+#model.add(layers.Dense(1024, activation='relu'))
+model.add(layers.Conv1D(64, 1, activation='relu', input_shape=(10,3)))
+model.add(layers.Conv1D(64, 1, activation='relu'))
+model.add(layers.Conv1D(128, 1, activation='relu'))
+model.add(layers.Conv1D(256, 1, activation='relu'))
+model.add(layers.Conv1D(1024, 1, activation='relu'))
 model.add(layers.MaxPooling1D(pool_size=10))
 model.add(layers.Flatten())
 model.add(layers.Dense(512, activation='relu'))
@@ -135,3 +134,4 @@ plt.ylabel('Validation MAE')
 a.show()
 
 plt.show()
+

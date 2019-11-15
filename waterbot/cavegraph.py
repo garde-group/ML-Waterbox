@@ -2,9 +2,11 @@
 Version Notes
 1.0: Made file, this demonstrates the ML vs existing FORTRAN/actual graph of cavity formation/hard sphere insertion
 1.1: Added heat-graph functionality
+1.2: Made the color bars uniform scales
 
-Version 1.1
-11/12/2019
+
+Version 1.2
+11/15/2019
 Owen Lockwood
 '''
 
@@ -154,11 +156,11 @@ with open("cave_skip.dat") as a:
 		FORT[int(math.floor((final[0])/bin))] = final[1]
 #i = input()
 
-model = load_model("cavemodel.h5")
+model = load_model("cavemodelcnn.h5")
 pre = model.predict(td_data)
 print(pre[0], len(pre))
 for i in range(len(pre)):
-	j = math.floor((pre[i])/bin)
+	j = int(math.floor((pre[i])/bin))
 	ML[j] += 1
 	mlsum += 1
 
@@ -177,13 +179,13 @@ plt.title("Traditional vs. Machine Learned Cavity Formation")
 #plt.plot(x_graph, y_act, 'blue', label='Python')
 plt.plot(x_graph, FORT, 'olive', label='FORTRAN')
 plt.plot(x_graph, ML, 'red', label='ML')
-plt.legend(loc='upper left')
+plt.legend(loc='upper right')
 plt.xlabel('Radius (nm)')
 plt.ylabel('Prob')
 
 # heat map actual
 b = plt.figure(2)
-plt.scatter(heat_y, heat_z, s=25, c=ss_label, cmap="hot", alpha=0.9)
+plt.scatter(heat_y, heat_z, s=25, c=ss_label, cmap="hot", vmin=0, vmax=0.3, alpha=0.9)
 plt.colorbar()
 plt.xlabel("y axis")
 plt.ylabel("z axis")
@@ -193,7 +195,7 @@ plt.title("Actual")
 # heat map ML
 
 c = plt.figure(3)
-plt.scatter(heat_y, heat_z, s=25, c=heat_pre, cmap="hot", alpha=0.9)
+plt.scatter(heat_y, heat_z, s=25, c=heat_pre, cmap="hot", vmin=0, vmax=0.3, alpha=0.9)
 plt.colorbar()
 plt.xlabel("y axis")
 plt.ylabel("z axis")

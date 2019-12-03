@@ -164,7 +164,7 @@ plt.title("Actual")
 
 # heat map ML
 c = plt.figure(3)
-plt.scatter(heat_y, heat_z, s=100, c=heat_pre, cmap="hot", vmin=0, vamx=1, alpha=0.9)
+plt.scatter(heat_y, heat_z, s=100, c=heat_pre, cmap="hot", vmin=0, vmax=1, alpha=0.9)
 plt.colorbar()
 plt.xlabel("y axis")
 plt.ylabel("z axis")

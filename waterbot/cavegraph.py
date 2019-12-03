@@ -140,6 +140,7 @@ for i in range(SIZE):
 		j += 3
 
 FORT = np.zeros(shape=(int(0.5/bin)))
+eval_label = np.zeros(shape=(SIZE))
 with open("cave_skip.dat") as a:
 	for line in a:
 		l = line.split('  ')
@@ -156,12 +157,17 @@ with open("cave_skip.dat") as a:
 		FORT[int(math.floor((final[0])/bin))] = final[1]
 #i = input()
 
-model = load_model("cavemodelcnn.h5")
+model = load_model("cave_gen.h5")
 pre = model.predict(td_data)
+results = model.evaluate(td_data, all_labels)
+print("RESULTS HERE", results)
 print(pre[0], len(pre))
 for i in range(len(pre)):
 	j = int(math.floor((pre[i])/bin))
-	ML[j] += 1
+	try:
+		ML[j] += 1
+	except:
+		print("error")	
 	mlsum += 1
 
 for i in range(len(ML)):

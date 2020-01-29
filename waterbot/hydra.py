@@ -73,7 +73,7 @@ for i in range(SIZE):
 		td_data[i][int(j/3)-1][1] = all_data[i][j+1]
 		td_data[i][int(j/3)-1][2] = all_data[i][j+2]
 		j += 3
-	dist = 10
+	dist = 5
 	for k in range(4):
 		dx = abs(td_data[i][k][0])
 		if dx > 2.5:
@@ -87,6 +87,8 @@ for i in range(SIZE):
 		temp = math.sqrt(dx**2 + dy**2 + dz**2)
 		if temp < dist:
 			dist = temp
+	if dist > 1:
+		print(dist, td_data[i])
 	cav_labels[i] = dist
 
 print(td_data[0])
@@ -102,7 +104,7 @@ test_label_cav = cav_labels[int(9*SIZE//10):]
 n = 4
 
 cbs = [
-    keras.callbacks.ModelCheckpoint("multi_head.h5", monitor='val_tetra_out_loss', verbose=0, save_best_only=True)
+    keras.callbacks.ModelCheckpoint("multi_head_cave.h5", monitor='val_cave_out_mean_absolute_error', verbose=0, save_best_only=True)
 ]
 #np.save("test_data", test_data)
 #np.save("test_label", test_label)
@@ -117,16 +119,16 @@ x = layers.Dense(512, activation='relu', name='feature5')(x)
 x = layers.Dense(1024, activation='relu', name='feature6')(x)
 x = layers.MaxPooling1D(pool_size=4)(x)
 x = layers.Flatten()(x)
-#x = layers.Dropout(0.3)(x)
+x = layers.Dropout(0.3)(x)
 
 tetra = layers.Dense(512, activation='relu', name='tetra1')(x)
 tetra = layers.Dense(256, activation='relu', name='tetra2')(tetra)
-tetra = layers.Dropout(0.3)(tetra)
+#tetra = layers.Dropout(0.3)(tetra)
 tetra = layers.Dense(1, name='tetra_out')(tetra)
 
 cave = layers.Dense(512, activation='relu', name='cave1')(x)
 cave = layers.Dense(256, activation='relu', name='cave2')(cave)
-cave = layers.Dropout(0.3)(cave)
+#cave = layers.Dropout(0.3)(cave)
 cave = layers.Dense(1, name='cave_out')(cave)
 
 adam = optimizers.Adam(lr=0.001)
@@ -154,5 +156,4 @@ plt.ylabel('Validation MAE')
 a.show()
 
 plt.show()
-
 

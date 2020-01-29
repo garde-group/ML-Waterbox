@@ -1,12 +1,9 @@
 '''
 Version Notes
 1.0: Made file, this demonstrates the ML vs existing FORTRAN/actual graph of q 
-1.1: Added heatmap functionality (likely still in process)
-1.2: Added Colorbars to heatmaps
-1.3: Properly lined up colorbars
 
-Version 1.3
-12/3/2019
+Version 1.0
+1/28/2020
 Owen Lockwood
 '''
 
@@ -147,7 +144,7 @@ with open("tetra_skip.dat") as a:
 		except:
 			print("ERROR IN ADDING TO LIST:", final[0])
 
-model = load_model("multi_head.h5")
+model = load_model("multi_head_cave.h5")
 pre = model.predict(td_data)
 results = model.evaluate(td_data, [cav_labels, all_labels])
 #print(pre[0], len(pre))
@@ -231,7 +228,6 @@ c.show()
 '''
 d.show()
 plt.show()
-
 
 
 

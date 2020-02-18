@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 # Hardcoded defaults
 NUM_COORD = 15
 SIZE = 414200
-full = 900000
+full = 600000
 IN_FILE = "tetra_coord.dat"
 
 all_data = np.zeros(shape=(SIZE, NUM_COORD))
@@ -119,6 +119,8 @@ while i < full:
 
 plt.hist(cav_labels)
 plt.show()
+plt.hist(all_labels)
+plt.show()
 print(td_data[0])
 partial_train = td_data[:int(4*full/5)]
 partial_label = all_labels[:int(4*full/5)]
@@ -165,7 +167,7 @@ adam = optimizers.Adam(lr=0.001)
 
 model = models.Model(inputs=inputs, outputs=[cave, tetra])
 
-model.compile(loss={'cave_out': 'mse', 'tetra_out': 'mse'}, metrics={'cave_out': 'mae', 'tetra_out': 'mae'}, optimizer=adam)
+model.compile(loss={'cave_out': 'mse', 'tetra_out': 'mse'}, loss_weights={'cave_out': 10000, 'tetra_out': 1}, metrics={'cave_out': 'mae', 'tetra_out': 'mae'}, optimizer=adam)
 
 history = model.fit(partial_train, {'cave_out': partial_label_cav, 'tetra_out': partial_label}, shuffle=True, epochs=100, \
 batch_size=64, callbacks=cbs, validation_data=(val_data, [val_label_cav, val_label]))

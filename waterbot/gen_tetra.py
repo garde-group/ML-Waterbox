@@ -7,54 +7,52 @@ from keras import backend as K
 import matplotlib.pyplot as plt
 import random
 import math
-
+from keras.utils import plot_model
 
 # Hardcoded defaults
-SIZE = 500000
+SIZE = 600000
+
+def every_day_im_shuffling(a, b):
+	rng_state = np.random.get_state()
+	np.random.shuffle(a)
+	np.random.set_state(rng_state)
+	np.random.shuffle(b)
 
 td_data = np.zeros(shape=(SIZE, 4, 3))
 all_labels = np.zeros(shape=(SIZE))
+dist = np.zeros(shape=(SIZE*4))
+d = 0
 for i in range(SIZE):
-    tet = random.uniform(-0.3,1.0)
-    while True:
-	    for j in range(4):
-		td_data[i][j][0] = x = random.uniform(-0.5,0.5) 
-		td_data[i][j][1] = y = random.uniform(-0.5,0.5)
-		td_data[i][j][2] = z = random.uniform(-0.5,0.5)
-		'''	
-		if x * y > 1:
-			x = 1-x
-			y = 1-y
-		if y * z > 1:
-			y = 1 - y
-			z = 1 - z
-		elif x*y*z > 1:
-			temp = x	
-			x = x*y*z-1
-			y = 1 - z - temp
-		a = 1 - x - y - z	
-		#final = map(lambda c, v, b, g: c+v+b+g, v0,v1,v2,v3)    	
-		'''
-		if abs(x + y) > 0.5:
-			x = 0.5 - x
-			y = 0.5 - y
-		if abs(x + y + z) > 0.5:
-			if abs(y + z) > 0.5:
-				y = 0.5 - z
-				z = 0.5 - x - y
-			else:
-				x = 0.5 - y - z
-				z = x + y + z - 0.5
-		final = [x,y,z]	
-		td_data[i][j][0] = final[0]
-		td_data[i][j][1] = final[1]
-		td_data[i][j][2] = final[2]
-		#print(final)
-		#j = input()
-	    m = 0
-	    n = 1
-	    sigma = 0
-	    while m < 3:
+	tet = random.uniform(-.5,.5)
+	if i < 500000:
+		td_data[i][0][0] = x = 1 * random.uniform(0.2, 0.3)
+		td_data[i][0][1] = y = 0 + random.uniform(-.1,.1) 
+		td_data[i][0][2] = z = -1/np.sqrt(2) * random.uniform(0.22, 0.3)
+		td_data[i][1][0] = x = -1 * random.uniform(0.2, 0.32)
+		td_data[i][1][1] = y = 0 + random.uniform(-.1,.1) 
+		td_data[i][1][2] = z = -1/np.sqrt(2) * random.uniform(0.22, 0.3)
+		td_data[i][2][0] = x = 0 + random.uniform(-.1,.1) 
+		td_data[i][2][1] = y = 1 * random.uniform(0.2, 0.32)
+		td_data[i][2][2] = z = 1/np.sqrt(2) * random.uniform(0.22, 0.3)
+		td_data[i][3][0] = x = 0 + random.uniform(-.1,.1) 
+		td_data[i][3][1] = y = -1 * random.uniform(0.2, 0.32)
+		td_data[i][3][2] = z = 1/np.sqrt(2) * random.uniform(0.22, 0.3)
+		for j in range(len(td_data[i])):
+			td_data[i][j][0] += random.uniform(-.2,.2) 
+			td_data[i][j][1] += random.uniform(-.2,.2)
+			td_data[i][j][2] += random.uniform(-.2,.2)
+	else:
+		for j in range(len(td_data[i])):
+			td_data[i][j][0] = random.uniform(-.2,.2) 
+			td_data[i][j][1] = random.uniform(-.2,.3)
+			td_data[i][j][2] = random.uniform(-.2,.2)
+	for j in range(len(td_data[i])):
+			dist[d] = math.sqrt(td_data[i][j][0]**2 + td_data[i][j][1]**2 + td_data[i][j][2]**2)
+			d += 1
+	m = 0
+	n = 1
+	sigma = 0
+	while m < 3:
 		while n < 4:
 			a = math.sqrt(td_data[i][m][0]**2 + td_data[i][m][1]**2 + td_data[i][m][2]**2)
 			b = math.sqrt(td_data[i][n][0]**2 + td_data[i][n][1]**2 + td_data[i][n][2]**2)
@@ -67,14 +65,18 @@ for i in range(SIZE):
 			sigma += angle
 			n += 1
 		m += 1
-	    t = 1 - 3./8. * sigma
-	    all_labels[i] = t
- 	    if abs(t-tet) < 0.3:
-		break
-print(all_labels[:5])
+	t = 1 - 3./8. * sigma
+	all_labels[i] = t
+
+
+#print(all_labels[:5])
+print(all_labels[0])
 plt.hist(all_labels)
 plt.show()
+plt.hist(dist)
+plt.show()
 print(td_data[0], all_labels[0])
+every_day_im_shuffling(td_data, all_labels)
 partial_train = td_data[:int(4*SIZE/5)]
 partial_label = all_labels[:int(4*SIZE/5)]
 val_data = td_data[int(4*SIZE/5):int(9*SIZE//10)]
@@ -84,7 +86,7 @@ test_label = all_labels[int(9*SIZE//10):]
 
 n = 4
 cbs = [
-    keras.callbacks.ModelCheckpoint("tetra_gen1.h5", monitor='val_mean_absolute_error', verbose=0, save_best_only=True)
+    keras.callbacks.ModelCheckpoint("tetra_gen2.h5", monitor='val_mae', verbose=0, save_best_only=True)
 ]
 
 model = models.Sequential()
@@ -107,6 +109,8 @@ model.compile(optimizer=adam, loss='mse', metrics=['mae'])
 history = model.fit(partial_train, partial_label, shuffle=True, epochs=30, \
 batch_size=64, callbacks=cbs, validation_data=(val_data,val_label))
 
+for key in history.history:
+	print(key)
 results = model.evaluate(test_data, test_label)
 print(results[1])
 

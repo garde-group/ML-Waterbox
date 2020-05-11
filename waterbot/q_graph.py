@@ -127,16 +127,23 @@ with open("tetra_skip.dat") as a:
 			except:
 				print(len(l[i]))		
 		#print(final)
-		FORT[int(math.floor((final[0]+1)/bin))] = final[1]
+		try:
+			FORT[int(math.floor((final[0]+1)/bin))] = final[1]
+		except:
+			print("ERROR IN ADDING TO LIST:", final[0])
 
-model = load_model("tetramodelconv.h5")
+model = load_model("tetra_gen2.h5")
 pre = model.predict(td_data)
+results = model.evaluate(td_data, all_labels)
 #print(pre[0], len(pre))
 for i in range(len(pre)):
 	j = math.floor((pre[i]+1)/bin)
 	if (j >= 200):
-		print("HERE", j)
+		#print("HERE", j)
+		continue		
 		j = 199
+	if j < 0:
+		j = 0
 	ML[int(j)] += 1
 
 for i in range(len(ML)):
@@ -152,7 +159,7 @@ plt.plot(x_graph, ML, 'red', label='ML')
 plt.legend(loc='upper left')
 plt.xlabel('q')
 plt.ylabel('Prob')
-
+'''
 # heat map actual
 b = plt.figure(2)
 plt.scatter(heat_y, heat_z, s=100, c=ss_label, cmap="hot", vmin=0, vmax=1, alpha=0.9)
@@ -170,12 +177,14 @@ plt.xlabel("y axis")
 plt.ylabel("z axis")
 plt.title("ML")
 
-
-a.show()
 b.show()
 c.show()
+'''
+a.show()
+
 
 plt.show()
+
 
 
 

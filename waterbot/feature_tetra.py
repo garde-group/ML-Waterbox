@@ -19,6 +19,7 @@ from keras import layers
 from keras import optimizers
 from keras import backend as K
 import matplotlib.pyplot as plt
+import math
 
 
 # Hardcoded defaults
@@ -45,6 +46,8 @@ with open(IN_FILE) as f:
 
 #print(all_data[:3])
 #print(all_labels[:3])
+plt.hist(all_labels)
+plt.show()
 
 '''
 Centering the data, just one approach to try
@@ -73,7 +76,18 @@ for i in range(SIZE):
 		td_data[i][int(j/3)-1][1] = all_data[i][j+1]
 		td_data[i][int(j/3)-1][2] = all_data[i][j+2]
 		j += 3
+dist = np.zeros(shape=(SIZE*4))
+d = 0
+for i in range(SIZE):
+	for j in range(4):
+		di = math.sqrt(td_data[i][j][0]**2 + td_data[i][j][1]**2 + td_data[i][j][2]**2)
+		if di > 3:
+			continue
+		dist[d] = di
+		d += 1
 
+plt.hist(dist)
+plt.show()
 print(td_data[0])
 partial_train = td_data[:int(4*SIZE/5)]
 partial_label = all_labels[:int(4*SIZE/5)]
@@ -86,7 +100,7 @@ test_label = all_labels[int(9*SIZE//10):]
 n = 4
 
 cbs = [
-    keras.callbacks.ModelCheckpoint("tetramodelconv.h5", monitor='val_mean_absolute_error', verbose=0, save_best_only=True)
+    keras.callbacks.ModelCheckpoint("tetramodeldense.h5", monitor='val_mean_absolute_error', verbose=0, save_best_only=True)
 ]
 #np.save("test_data", test_data)
 #np.save("test_label", test_label)
@@ -145,3 +159,5 @@ plt.ylabel('Validation MAE')
 a.show()
 
 plt.show()
+
+

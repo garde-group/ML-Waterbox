@@ -1,6 +1,11 @@
-# ML-Waterbox
-See the (IN PROGESS) README.pdf for full information on this repository (as of May 2019).
+# Analysis of Molecular Simulations with Machine Learning
 
-Waterbot is where all of the current work is going on. It's expanding upon the project but mostly starting from the beginning again to ensure the validity of the results.
+In short, this repository contains the code (and other writings of relevance) done by the Garde Group with the goal of applying ML/Deep Learning to the analysis of water simulations. Please contact us (lockwo@rpi.edu) before using any of this code. The most recent work is in the Waterbot folder. Benchmarking contains timing tests, and source code contains work done previously. 
 
-In short, this repository contains the code (and other writings of relevance) done by the Garde Group with the goal of applying ML/Deep Learning to the analysis of water simulations. Please contact us (lockwo@rpi.edu) before using any of this code. The organization of this repo is in progress and is in need of improvements, but [understanding it](https://kriscroes.github.io/images/blog1/dilbert.png) [therefore makes me](https://xkcd.com/1597/) [essential.](https://xkcd.com/1296/)
+Outcomes of this Project:
+
+-[Final Report](https://github.com/garde-group/ML-Waterbox/blob/master/water_final.pdf)
+
+-First Place [Poster](https://github.com/garde-group/ML-Waterbox/blob/master/Lockwood_Owen_UGRS_Poster_v1.pub) at RPI Undegraduate Research Symposium
+
+-May 2019 [Report](https://github.com/garde-group/ML-Waterbox/blob/master/README.pdf)

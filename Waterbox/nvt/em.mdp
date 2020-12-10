@@ -1,0 +1,8 @@
+cpp                 =  /lib/cpp
+constraints         =  none
+integrator          =  cg
+nstcgsteep          =  1000
+nsteps              =  20000
+emtol               =  500
+emstep              =  0.1
+

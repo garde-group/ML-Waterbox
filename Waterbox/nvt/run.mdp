@@ -1,0 +1,59 @@
+;PREPROCESSOR
+title               = simulation		; a string
+cpp                 = /lib/cpp			; c-preprocessor
+integrator	    = md			;leap-frog integrator
+
+; TIMESTEP
+dt                  = 0.002			; time step (ps)
+nsteps              = 2500000			; number of steps ;5 ns
+
+; CENTER OF MASS MOTION REMOVAL
+comm_mode           = Linear
+comm_grps           = System 
+nstcomm             = 500		; reset c.o.m. motion
+nstcalcenergy       = 1			; needed in 4.5.3
+
+; OUTPUT FREQUENCIES
+nstxout             = 0		; write coords
+nstvout             = 0		; write velocities
+nstfout		    = 0
+nstlog		    = 0		; print to logfile
+nstenergy           = 0		; print energies
+
+nstxtcout           = 500 
+xtc_grps            = System
+xtc-precision       = 1000
+energygrps          = System
+
+; NEIGHBOUR SEARCHING
+nstlist             = 1			; update pairlist
+ns_type             = grid		; pairlist method
+
+; ELECTROSTATICS and VANDERWAALS
+rlist               = 1.0			
+coulombtype         = PME
+rcoulomb            = 1.0		; cut-off for coulomb
+vdw-type            = Cut-off
+rvdw-switch         = 0
+rvdw                = 1.2		; cut-off for vdw
+pbc                 = xyz
+table-extension     = 1
+
+; COUPLING ALGORTIHMS
+Tcoupl              = Nose-Hoover
+nhchainlength       = 1			;required for leap-frog integrator
+tc-grps		    = System
+tau_t		    = 0.5  
+ref_t               = 298 
+compressibility     = 4.5e-05
+
+; CONSTRAINTS
+constraints          = hbonds
+constraint_algorithm = lincs
+
+;VELOCITY GENERATION
+gen_vel              = yes		; generate initial velocities
+gen_temp             = 298		; initial temperature
+gen_seed             = 2597383		; random seed
+
+
